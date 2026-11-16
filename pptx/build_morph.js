@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 const { applyTheme } = require(path.join(process.env.SKILL_DIR, 'scripts/apply_theme.js'));
 const NOTES = JSON.parse(fs.readFileSync(path.join(__dirname, 'notes.json'), 'utf8'));
-NOTES.splice(6, 0, 'Le spermatozoïde en détail. La tête contient le noyau, donc l’ADN, et l’acrosome qui aide à traverser les enveloppes de l’ovocyte. La pièce intermédiaire renferme les mitochondries qui fournissent l’énergie. Le flagelle propulse la cellule : sans mobilité suffisante, la fécondation naturelle échoue. Les anomalies de nombre, de mobilité ou de forme expliquent une grande part des infertilités masculines.');
+if (process.env.NOTES18) { NOTES.length = 0; NOTES.push(...JSON.parse(fs.readFileSync(path.join(__dirname, 'notes18.json'), 'utf8'))); } else NOTES.splice(6, 0, 'Le spermatozoïde en détail. La tête contient le noyau, donc l’ADN, et l’acrosome qui aide à traverser les enveloppes de l’ovocyte. La pièce intermédiaire renferme les mitochondries qui fournissent l’énergie. Le flagelle propulse la cellule : sans mobilité suffisante, la fécondation naturelle échoue. Les anomalies de nombre, de mobilité ou de forme expliquent une grande part des infertilités masculines.');
 let NI = 1;
 const ALL = []; // slides, dans l’ordre, pour poser le fil conducteur (Morphose)
 
