@@ -30,7 +30,9 @@ pres.defineSlideMaster({
 
 const sh = pres.shapes;
 const AR = { title: 0.9, defs: 1, male: 1, don_kids: 1, fem_fol: 1.87, fem_plug: 1.87, stim_pon: 2.23, stim_fol: 2.23, ins_cav: 1.5, fiv_pon: 1.8, fiv_petri: 1.8, fiv_nid: 1.8, icsi: 1.47, bilan: 1.3 };
-const content = (title, sec) => { const s = pres.addSlide({ masterName: 'Contenu', sectionTitle: sec }); s.addText(title, { placeholder: 'title' }); s.addNotes(NOTES[NI++]); ALL.push(s); return s; };
+const SKIP = new Set(['Trois questions', 'Les techniques de PMA', 'Comparer les techniques']); // slides retirées (redondantes)
+const nop = new Proxy(function () {}, { get: () => nop, apply: () => nop });
+const content = (title, sec) => { if (SKIP.has(title)) { NI++; return nop; } const s = pres.addSlide({ masterName: 'Contenu', sectionTitle: sec }); s.addText(title, { placeholder: 'title' }); s.addNotes(NOTES[NI++]); ALL.push(s); return s; };
 const kicker = (s, t) => s.addText(t, { x: 0.7, y: 0.34, w: 8, h: 0.24, fontSize: 10.5, bold: true, charSpacing: 3, color: ACC, margin: 0, isTextBox: true, objectName: 'Rubrique' });
 const T = (s, text, o) => s.addText(text, { margin: 0, isTextBox: true, color: C.text1, fontSize: 14, valign: 'top', ...o });
 const MODE3D = !!process.env.MODE3D;
@@ -269,8 +271,15 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
     { sp: [7.3, 4.45, 1.7, -10] },                                 // 16 bilan
     { sp: [8.2, 4.65, 1.0, 0] },                                   // 17 sources
   ];
+  const DROP = new Set([1, 7, 13]);
+  const THK = TH.filter((_, i) => !DROP.has(i));
+  THK[1].uterus = [8.7, 0.3, 0.9];
+  // 3 présentateurs : pastille bleue / verte / jaune en bas à droite (nom « !! » : elle glisse et change de couleur avec la Morphose)
+  const PRES = [[0, 5, '3B82F6'], [6, 10, '22C55E'], [11, 99, 'FACC15']];
   ALL.forEach((s, i) => {
-    const t = TH[i]; if (!t) return;
+    const col = PRES.find(([a, z]) => i >= a && i <= z)[2];
+    s.addShape(sh.OVAL, { x: 9.45, y: 5.2, w: 0.18, h: 0.18, fill: { color: col }, line: { color: col, width: 0 }, objectName: '!!pastille' });
+    const t = THK[i]; if (!t) return;
     ['male', 'uterus'].forEach((k) => { if (t[k]) { const [x, y, w, tr] = t[k]; s.addImage({ path: path.join(__dirname, 'assets', k + '.png'), x, y, w, h: w / AR[k], transparency: tr || 0, altText: k === 'male' ? 'Appareil reproducteur masculin (3D)' : 'Utérus (3D)', objectName: '!!' + k }); } });
     const [x, y, w, rot] = t.sp;
     s.addImage({ path: path.join(__dirname, 'assets', 'sperm.gif'), x, y, w, h: w / AR.sperm, rotate: rot, altText: 'Spermatozoïde (3D animé)', objectName: '!!sperm' });
