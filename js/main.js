@@ -214,7 +214,7 @@ function step(dt) {
   for (const el of statEls) {
     if (el.dataset.txt) continue;
     const p = easeOut((W.t - +el.dataset.at) / 1.4); const v = +el.dataset.v, dec = +el.dataset.dec;
-    el.querySelector('.v').textContent = el.dataset.pre + (v * p).toFixed(dec).replace('.', ',') + el.dataset.suf;
+    el.querySelector('.v').textContent = el.dataset.pre + (v * p).toFixed(dec).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '\u202f') + el.dataset.suf;
   }
   placeLabels();
   // progression & lecture auto
@@ -251,6 +251,9 @@ window.__api = {
   step: (dt) => step(dt), render: () => S.render(), goto, N,
   durs: slides.map((s) => s.dur), get idx() { return cur_i; }, get t() { return W.t; }, setAuto,
   // avance rapide sans rendu (tests)
+  // export vidéo : avance déterministe sans rendu
+  ffTo(frames, fps = 24) { const dt = 1 / fps; for (let f = 0; f < frames; f++) { if (window.__finished) break; step(dt); } return window.__finished ? 1 : 0; },
+  countFrames(fps = 24) { const dt = 1 / fps; let n = 0; while (!window.__finished && n < 1e6) { step(dt); n++; } return n; },
   seek(i, t, dt = 1 / 30) { goto(i); for (let a = 0; a < t; a += dt) step(dt); },
 };
 window.__ready = true;

@@ -46,7 +46,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: var(--ink); 
 .rv { will-change: opacity, transform; }
 
 /* échographie */
-#echo { position: absolute; left: 2.4vw; bottom: 15vh; width: min(17.5vw, 250px); padding: 8px 10px 10px; display: none; }
+#echo { position: absolute; left: 2.4vw; bottom: 14vh; width: min(15.5vw, 230px); padding: 8px 10px 10px; display: none; }
 #echo .echo-t { font-size: clamp(9px, .8vw, 12px); letter-spacing: .16em; text-transform: uppercase; color: var(--mut); margin-bottom: 6px; }
 #echoc { width: 100%; height: auto; border-radius: 10px; display: block; background: #000; }
 #echo-cap { font-size: clamp(10px, .85vw, 13px); color: #cfd8ff; margin-top: 7px; min-height: 1.3em; }

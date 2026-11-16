@@ -136,12 +136,12 @@ export function slidesB(W) {
     out.push({
       id: 'stimulation', dur: 46, bg: [0x4a1236, 0x090309], accent: COL.warn, shift: 0.17, echo: true,
       ui: {
-        side: 'left', kicker: '05 · Stimulation hormonale', title: 'Aider l’ovaire<br>à produire des <span style="color:#ffb84d">ovocytes</span>',
+        side: 'left', dense: true, kicker: '05 · Stimulation hormonale', title: 'Aider l’ovaire<br>à produire des <span style="color:#ffb84d">ovocytes</span>',
         items: [
-          { at: 3, html: 'Naturellement : l’hypophyse sécrète <em>FSH</em> et <em>LH</em> ; le <b>pic de LH</b> déclenche l’ovulation.' },
-          { at: 11.2, html: 'Hypophyse déficiente (<b>pas de pic de LH</b>) : l’ovulation n’a pas lieu.', cls: 'warnli' },
-          { at: 16, html: '<em>Stimulation</em> : des hormones remplacent ou renforcent l’action du complexe hypothalamo-hypophysaire.' },
-          { at: 28, html: 'Les ovocytes sont <b>ponctionnés avant l’ovulation</b> (don d’ovocytes, FIV).' },
+          { at: 3, html: 'Naturellement : <em>FSH</em> et <em>LH</em> hypophysaires ; le <b>pic de LH</b> déclenche l’ovulation.' },
+          { at: 11.2, html: 'Hypophyse déficiente (<b>pas de pic de LH</b>) : pas d’ovulation.', cls: 'warnli' },
+          { at: 16, html: '<em>Stimulation</em> : des hormones remplacent ou renforcent l’action de l’hypophyse.' },
+          { at: 28, html: 'Ovocytes <b>ponctionnés avant l’ovulation</b> (don, FIV).' },
         ],
         src: 'Document 6 · La stimulation hormonale des ovaires',
       },
@@ -341,7 +341,7 @@ export function slidesB(W) {
           { at: 1, html: '<b>Don de sperme</b> : gratuit et volontaire.' },
           { at: 4.5, html: 'Conservé dans l’<em>azote liquide</em> à <b>−196 °C</b>, jusqu’à <b>10 ans</b>.' },
           { at: 13, html: '<b>10 enfants au maximum</b> nés d’un même donneur.' },
-          { at: 19, html: 'Loi de 2021 : à leur majorité, les enfants nés d’un don peuvent connaître l’identité du donneur.' },
+          { at: 19, html: 'Loi de 2021 : à leur majorité, les enfants nés d’un don (depuis sept. 2022) peuvent connaître le donneur.' },
           { at: 26, html: '<b>Don d’ovocytes</b> : stimulation hormonale + ponction, puis <em>FIV</em> obligatoire.' },
         ],
         stats: [

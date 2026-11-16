@@ -45,8 +45,8 @@ export function makeOocyte(R = 1, { corona = false } = {}) {
   const halo = glowShell(R * 1.03, 0xffc47a, 3, 0.9);
   const polar = new THREE.Mesh(new THREE.SphereGeometry(R * 0.1, 24, 16), new THREE.MeshStandardMaterial({ color: 0xffe7c2, roughness: 0.5 }));
   polar.position.set(0, R * 0.91, 0);
-  const pn = new THREE.Group(); const pm = new THREE.MeshPhysicalMaterial({ color: 0xbfefff, emissive: 0x4fd0ff, emissiveIntensity: 0.9, roughness: 0.2, transparent: true, opacity: 0.95 });
-  for (const sx of [-1, 1]) { const m = new THREE.Mesh(new THREE.SphereGeometry(R * 0.17, 20, 16), pm); m.position.set(sx * R * 0.2, -R * 0.05, R * 0.55); pn.add(m); }
+  const pn = new THREE.Group(); const pm = new THREE.MeshPhysicalMaterial({ color: 0xbfefff, emissive: 0x4fd0ff, emissiveIntensity: 0.9, roughness: 0.2, transparent: true, opacity: 0.95, depthTest: false });
+  for (const sx of [-1, 1]) { const m = new THREE.Mesh(new THREE.SphereGeometry(R * 0.17, 20, 16), pm); m.position.set(sx * R * 0.24, 0, 0); m.renderOrder = 20; pn.add(m); }
   pn.scale.setScalar(0.001); pn.visible = false;
   g.add(cyto, zona, halo, polar, pn);
   g.userData = { cyto, zona, halo, polar, pn, R };
@@ -184,8 +184,8 @@ export function makeDewar() {
   const prof = [[0.01, 0], [0.9, 0.0], [1.05, 0.2], [1.1, 0.6], [1.1, 2.5], [1.02, 2.7], [0.86, 2.76], [0.82, 2.7], [0.95, 2.56], [0.98, 0.7], [0.01, 0.55]].map(([x, y]) => new THREE.Vector2(x, y));
   const body = new THREE.Mesh(new THREE.LatheGeometry(prof, 56),
     new THREE.MeshStandardMaterial({ color: 0xb9c6d8, metalness: 1, roughness: 0.3, side: THREE.DoubleSide }));
-  const liquid = new THREE.Mesh(new THREE.CircleGeometry(0.93, 48), new THREE.MeshStandardMaterial({ color: 0x9fe8ff, emissive: 0x2fb6e8, emissiveIntensity: 0.7, roughness: 0.15, transparent: true, opacity: 0.9 }));
-  liquid.rotation.x = -Math.PI / 2; liquid.position.y = 2.05;
+  const liquid = new THREE.Mesh(new THREE.CircleGeometry(0.93, 48), new THREE.MeshStandardMaterial({ color: 0x9fe8ff, emissive: 0x38c8ff, emissiveIntensity: 1.6, roughness: 0.15, transparent: true, opacity: 0.95 }));
+  liquid.rotation.x = -Math.PI / 2; liquid.position.y = 2.4;
   g.add(body, liquid);
   g.userData = { liquid };
   return g;

@@ -31,7 +31,7 @@ export function slidesA(W) {
         ],
         src: 'Procréation médicalement assistée · infertilité · stérilité',
       },
-      narration: 'Faire un enfant semble naturel… et pourtant, environ un couple sur sept consulte pour des difficultés à concevoir. Pourquoi la fécondation échoue-t-elle parfois ? Et comment la médecine peut-elle aider ? Voyageons ensemble au cœur de l’appareil reproducteur pour le comprendre.',
+      narration: 'Faire un enfant semble naturel… et pourtant, de nombreux couples rencontrent des difficultés pour concevoir. Pourquoi la fécondation échoue-t-elle parfois ? Et comment la médecine peut-elle aider ? Voyageons ensemble au cœur de l’appareil reproducteur pour le comprendre.',
       init(W) { fl = makeFlock(W, 70, { scale: 0.28, seed: 3 }); },
       update(W, t) {
         W.show(W.U, 1); W.show(W.platF, 1); W.show(fl.sw.group, 1);
@@ -245,7 +245,7 @@ export function slidesA(W) {
         W.show(plug, B * easeOut(seg(t, 20.5, 22.5)));
         plug.position.copy(pp); plug.rotation.y = W.time * 0.4;
         pathos.forEach((p, i) => { W.show(p, B * easeOut(seg(t, 21 + i * 0.25, 22.8 + i * 0.25))); const a = i * 1.26 + W.time * 0.7; p.position.copy(pp).add(v3(Math.cos(a) * 0.1, Math.sin(a) * 0.1, 0.07 * Math.sin(a * 2))); p.rotation.y = W.time * 2; });
-        W.label('plug', 'Obstruction<small>suite à des infections</small>', pp.clone().add(v3(0.02, 0.05, 0.1)), { a: bump(t, 22.5, 38), color: COL.bad, dx: -64, dy: -78, right: true, big: true });
+        W.label('plug', 'Obstruction<small>suite à des infections</small>', pp.clone().add(v3(0.02, 0.05, 0.1)), { a: bump(t, 22.5, 38), color: COL.bad, dx: 50, dy: -92, big: true });
         // ovulation normale à gauche puis trajet de l'ovocyte jusqu'à l'obstacle
         const ovT = seg(t, 24, 30);
         W.show(ooFree, B * (t > 24 ? 1 : 0));
