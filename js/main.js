@@ -164,7 +164,7 @@ function goto(i) {
   buildUI(slide);
   $('#count').textContent = String(i + 1).padStart(2, '0') + ' / ' + String(N).padStart(2, '0');
   [...dots.children].forEach((d, k) => { d.className = k < i ? 'done' : k === i ? 'cur' : ''; });
-  W.shift = slide.shift ?? 0;
+  W.shift = window.__noShift ? 0 : (slide.shift ?? 0);
   document.body.classList.toggle('scope', !!slide.scope);
   slide.enter && slide.enter(W);
   if (location.hash !== '#' + (i + 1) && !EXPORT) history.replaceState(null, '', '#' + (i + 1));
