@@ -88,7 +88,7 @@ def process_slide(xml_bytes, number):
     # titre : fondu ; rubrique avec lui
     for k, c in enumerate(title + kick):
         items.append((c['spid'], 'fade', 'afterEffect' if k == 0 else 'withEffect', c['tag'] == 'sp', False))
-    rest = [c for c in cand if not c['title'] and c['name'] != 'Rubrique' and c['b']]
+    rest = [c for c in cand if not c['title'] and c['name'] != 'Rubrique' and not c['name'].startswith('!!') and c['b']]
     rest.sort(key=lambda c: (round(c['b'][1] / 91440 / 0.12), c['b'][0], -(c['b'][2] * c['b'][3])))
     containers, prev_b = [], None
     for c in rest:
@@ -102,10 +102,14 @@ def process_slide(xml_bytes, number):
             node = 'afterEffect'
         items.append((c['spid'], 'float', node, c['tag'] == 'sp', c['chart']))
     # transition + timing
-    for old in root.findall('p:transition', NS) + root.findall('p:timing', NS):
+    for old in root.findall('p:transition', NS) + root.findall('p:timing', NS) + root.findall('{http://schemas.openxmlformats.org/markup-compatibility/2006}AlternateContent'):
         root.remove(old)
     trans = '<p:push dir="l"/>' if number in SECTION_STARTS else '<p:fade/>'
-    transition = etree.fromstring(f'<p:transition xmlns:p="{NS["p"]}" spd="med">{trans}</p:transition>')
+    if MORPH and number > 1:
+        # Morphose : les objets de même nom (« !!sperm »...) glissent, grossissent et tournent d'une slide à l'autre
+        transition = etree.fromstring(f'<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:p="{NS["p"]}"><mc:Choice xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main" Requires="p159"><p:transition spd="slow"><p159:morph option="byObject"/></p:transition></mc:Choice><mc:Fallback><p:transition spd="slow"><p:fade/></p:transition></mc:Fallback></mc:AlternateContent>')
+    else:
+        transition = etree.fromstring(f'<p:transition xmlns:p="{NS["p"]}" spd="med">{trans}</p:transition>')
     timing = etree.fromstring(build_timing(items))
     clr = root.find('p:clrMapOvr', NS)
     idx = list(root).index(clr) + 1 if clr is not None else list(root).index(root.find('p:cSld', NS)) + 1
@@ -113,7 +117,9 @@ def process_slide(xml_bytes, number):
     root.insert(idx + 1, timing)
     return etree.tostring(root, xml_declaration=True, encoding='UTF-8', standalone=True)
 
-src, dst = sys.argv[1], sys.argv[2]
+MORPH = '--morph' in sys.argv
+args = [a for a in sys.argv[1:] if not a.startswith('--')]
+src, dst = args[0], args[1]
 zin = zipfile.ZipFile(src)
 zout = zipfile.ZipFile(dst, 'w', zipfile.ZIP_DEFLATED)
 for item in zin.infolist():
