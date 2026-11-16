@@ -9,7 +9,7 @@ os.makedirs(OUT, exist_ok=True)
 WHITE, PALE = (255, 255, 255), (243, 246, 252)
 # (clip, sortie, cx, cy, largeur du recadrage (px sur 1600x900), ratio l/h, largeur GIF, fps, fond)
 SPEC = [
-    ('title', 'title', 800, 440, 780, 0.9, 560, 12, PALE),
+    ('title', 'title', 800, 440, 780, 0.9, 560, 12, WHITE),
     ('defs', 'defs', 803, 430, 800, 1.0, 560, 12, WHITE),
     ('fem_fol', 'fem_fol', 695, 520, 900, 1.87, 700, 12, WHITE),
     ('fem_plug', 'fem_plug', 822, 520, 900, 1.87, 700, 12, WHITE),
@@ -41,8 +41,8 @@ for clip, out, cx, cy, w, ar, ow, fps, bg in SPEC:
         c = im.crop((int(x0), int(y0), int(x0 + w), int(y0 + h))).resize((ow, oh), Image.LANCZOS)
         base = Image.new('RGBA', c.size, bg + (255,)); base.alpha_composite(c)
         base.convert('RGB').save(f'{tmp}/f{i:04d}.png')
-    pal = f'{tmp}/pal.png'
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(fps), '-i', f'{tmp}/f%04d.png', '-vf', 'palettegen=max_colors=200:stats_mode=diff', pal], check=True)
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(fps), '-i', f'{tmp}/f%04d.png', '-i', pal, '-lavfi', 'paletteuse=dither=sierra2_4a:diff_mode=rectangle', '-loop', '0', f'{OUT}/{out}.gif'], check=True)
+    # blanc exact -> transparent (la GIF se fond dans la slide) ; pas d'optimisation par différence (évite les images fantômes)
+    vf = 'format=rgba,colorkey=0xFFFFFF:0.004:0.0,split[a][b];[a]palettegen=max_colors=200:reserve_transparent=1:stats_mode=diff[p];[b][p]paletteuse=dither=sierra2_4a:alpha_threshold=128'
+    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(fps), '-i', f'{tmp}/f%04d.png', '-lavfi', vf, '-gifflags', '-transdiff', '-loop', '0', f'{OUT}/{out}.gif'], check=True)
     shutil.rmtree(tmp, ignore_errors=True)
     print(out, os.path.getsize(f'{OUT}/{out}.gif') // 1024, 'Ko', len(frames), 'images')

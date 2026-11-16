@@ -90,10 +90,12 @@ def process_slide(xml_bytes, number):
         items.append((c['spid'], 'fade', 'afterEffect' if k == 0 else 'withEffect', c['tag'] == 'sp', False))
     rest = [c for c in cand if not c['title'] and c['name'] != 'Rubrique' and c['b']]
     rest.sort(key=lambda c: (round(c['b'][1] / 91440 / 0.12), c['b'][0], -(c['b'][2] * c['b'][3])))
-    containers = []
+    containers, prev_b = [], None
     for c in rest:
         within = any(inside(c['b'], k) and (k[2] * k[3] > c['b'][2] * c['b'][3] * 1.05) for k in containers)
-        node = 'withEffect' if within else 'afterEffect'
+        same_row = bool(prev_b) and abs(c['b'][1] - prev_b[1]) < 91440 * 0.12 and c['b'][0] != prev_b[0]
+        node = 'withEffect' if (within or same_row) else 'afterEffect'
+        prev_b = c['b']
         if not within:
             containers.append(c['b'])
         if not items:

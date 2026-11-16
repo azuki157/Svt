@@ -32,7 +32,7 @@ W.add(S.uterus); W.add(S.male);
 const platF = W.add(S.makePlatform(COL.fem, 2.2)); platF.position.copy(ST.F).y = -1.02;
 const platM = W.add(S.makePlatform(COL.mal, 2.3)); platM.position.copy(ST.M).y = S.maleBox.min.y - 0.06;
 const platL = W.add(S.makePlatform(COL.lab, 3.6)); platL.position.copy(ST.L).y = -1.02;
-if (LIGHT) { S.sky.visible = false; S.dust.visible = false; S.scene.fog = null; for (const p of [platF, platM, platL]) { p.children[0].material.color.set(0xdde5f4); p.children[3].visible = false; p.children[2].visible = false; } }
+if (LIGHT) { S.sky.visible = false; S.dust.visible = false; S.scene.fog = null; for (const p of [platF, platM, platL]) p.children.forEach((c) => { c.visible = false; }); }
 W.platF = platF; W.platM = platM; W.platL = platL;
 
 // ---------- mise en évidence ----------
