@@ -4,3 +4,8 @@ render/
 pptx/gif/
 pptx/*.pptx
 pptx/img/
+pptx/assets/sf*/
+pptx/assets/sp_tmp*/
+pptx/assets/sperm_frames/
+pptx/assets/prev_*.png
+_t_assets.html

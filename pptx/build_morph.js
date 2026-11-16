@@ -247,7 +247,7 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
 
 
   // ---- fil conducteur : un même spermatozoïde (et quelques organes) nommés « !! » pour la transition Morphose ----
-  const AR = { sperm: 1834 / 361, male: 1125 / 1040, uterus: 1394 / 1009 };
+  const AR = { sperm: 3.932, male: 1125 / 1040, uterus: 1394 / 1009 };
   const asset = (name, nm, x, y, w, rot = 0) => ({ name, nm, x, y, w, rot });
   const TH = [ // [spermatozoïde x, y, largeur, rotation], organes éventuels
     { sp: [4.7, 3.6, 1.6, -12], uterus: [5.3, 0.9, 4.2] },        // 1 titre
@@ -273,7 +273,7 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
     const t = TH[i]; if (!t) return;
     ['male', 'uterus'].forEach((k) => { if (t[k]) { const [x, y, w, tr] = t[k]; s.addImage({ path: path.join(__dirname, 'assets', k + '.png'), x, y, w, h: w / AR[k], transparency: tr || 0, altText: k === 'male' ? 'Appareil reproducteur masculin (3D)' : 'Utérus (3D)', objectName: '!!' + k }); } });
     const [x, y, w, rot] = t.sp;
-    s.addImage({ path: path.join(__dirname, 'assets', 'sperm.png'), x, y, w, h: w / AR.sperm, rotate: rot, altText: 'Spermatozoïde (3D)', objectName: '!!sperm' });
+    s.addImage({ path: path.join(__dirname, 'assets', 'sperm.gif'), x, y, w, h: w / AR.sperm, rotate: rot, altText: 'Spermatozoïde (3D animé)', objectName: '!!sperm' });
   });
   const out = path.join(__dirname, 'PMA_SVT_morph_base.pptx');
   await pres.writeFile({ fileName: out });
