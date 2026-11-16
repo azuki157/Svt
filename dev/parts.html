@@ -1,0 +1,18 @@
+<!doctype html><html><body style="margin:0;background:#111"><canvas id="c" width="1100" height="800"></canvas>
+<script type="importmap">{"imports":{"three":"../vendor/three.module.js","three/addons/":"../vendor/addons/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from '../vendor/addons/loaders/GLTFLoader.js';
+const r=new THREE.WebGLRenderer({canvas:document.getElementById('c'),antialias:true,preserveDrawingBuffer:true});
+const s=new THREE.Scene();s.background=new THREE.Color(0x222831);
+s.add(new THREE.HemisphereLight(0xffffff,0x888899,2.4));
+const cam=new THREE.PerspectiveCamera(35,1100/800,.01,100);
+new GLTFLoader().load('../models/male_reproductive_system.glb',g=>{
+  const root=g.scene;s.add(root);const out=[];let i=0;
+  root.traverse(o=>{if(o.isMesh){const col=new THREE.Color().setHSL((i*0.618)%1,0.9,0.55);o.material=new THREE.MeshStandardMaterial({color:col,roughness:.6});out.push(i+' '+o.name.split('_')[0]+' '+col.getHexString());i++;}});
+  console.log(out.join('\n'));
+  const b=new THREE.Box3().setFromObject(root);const c=b.getCenter(new THREE.Vector3());const sz=b.getSize(new THREE.Vector3());
+  const R=Math.max(sz.x,sz.y,sz.z);cam.position.set(c.x,c.y,c.z+R*1.7);cam.lookAt(c);
+  r.render(s,cam);window.DONE=true;
+});
+</script></body></html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>PMA en 3D</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script type="importmap">{"imports":{"three":"./vendor/three.module.js","three/addons/":"./vendor/addons/"}}</script>
+</head>
+<body>
+  <canvas id="gl"></canvas>
+  <div id="labels"></div>
+
+  <div id="hud">
+    <header id="topbar">
+      <div class="brand"><span class="logo"></span><span>SVT · Procréation médicalement assistée</span></div>
+      <nav id="dots" aria-label="Progression"></nav>
+      <div id="count">01 / 13</div>
+    </header>
+
+    <section id="panel" class="glass left">
+      <div class="kicker" id="kicker"></div>
+      <h1 id="title"></h1>
+      <ul id="items"></ul>
+      <div id="stats"></div>
+      <div id="src"></div>
+    </section>
+
+    <div id="echo" class="glass"><div class="echo-t">Échographie ovarienne</div><canvas id="echoc" width="360" height="260"></canvas><div id="echo-cap"></div></div>
+
+    <div id="caption"></div>
+
+    <footer id="controls">
+      <button id="bPrev" title="Précédent (←)" aria-label="Précédent">‹</button>
+      <button id="bPlay" title="Lecture automatique (A)" aria-label="Lecture automatique">▶</button>
+      <button id="bNext" title="Suivant (→ ou Espace)" aria-label="Suivant">›</button>
+      <span class="sep"></span>
+      <button id="bNotes" title="Narration (N)" aria-label="Narration">Aa</button>
+      <button id="bFull" title="Plein écran (F)" aria-label="Plein écran">⛶</button>
+    </footer>
+    <div id="hint">← → pour naviguer · A lecture auto · N narration · F plein écran</div>
+  </div>
+
+  <div id="loader"><div class="ring"></div><div id="loadtxt">Chargement des modèles 3D…</div></div>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
