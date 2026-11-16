@@ -194,7 +194,18 @@ export async function createStage(canvas, { width, height, dpr = 1, onProgress }
 
   // ---------- chargement des modèles ----------
   const loader = new GLTFLoader();
-  const load = (url) => new Promise((res, rej) => loader.load(url, res, (e) => onProgress && e.total && onProgress(e.loaded / e.total), rej));
+  // version "artefact" : modèles embarqués en base64 dans des modules JS (window.MODEL_EMBED)
+  const load = (url) => {
+    if (window.MODEL_EMBED) {
+      const name = url.split('/').pop().replace('.glb', '');
+      return import(`./model_${name}.js`).then((m) => {
+        const bin = atob(m.default); const buf = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+        return new Promise((res, rej) => loader.parse(buf.buffer, '', res, rej));
+      });
+    }
+    return new Promise((res, rej) => loader.load(url, res, (e) => onProgress && e.total && onProgress(e.loaded / e.total), rej));
+  };
   const [gU, gM, gS] = await Promise.all([load('models/uterus.glb'), load('models/male_reproductive_system.glb'), load('models/sperm.glb')]);
 
   // -- utérus : recentré + attribut de zone pour les mises en évidence
