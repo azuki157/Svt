@@ -2,7 +2,7 @@
 Usage : python3 animate.py in.pptx out.pptx
 Les éléments d'une slide apparaissent automatiquement, dans l'ordre de lecture, sans clic.
 """
-import sys, zipfile, re
+import sys, zipfile, re, math
 from lxml import etree
 
 NS = {'p': 'http://schemas.openxmlformats.org/presentationml/2006/main', 'a': 'http://schemas.openxmlformats.org/drawingml/2006/main'}
@@ -36,7 +36,12 @@ def effect(ids, spid, node, kind, grp, dur=450):
     xml += f'<p:animEffect transition="in" filter="fade"><p:cBhvr><p:cTn id="{ids()}" dur="{dur}"/><p:tgtEl><p:spTgt spid="{spid}"/></p:tgtEl></p:cBhvr></p:animEffect></p:childTnLst></p:cTn></p:par>'
     return xml
 
-def build_timing(items):
+def motion_xml(ids, spid, path, dur=5200):
+    return (f'<p:par><p:cTn id="{ids()}" presetID="0" presetClass="path" presetSubtype="0" fill="hold" nodeType="afterEffect"><p:stCondLst><p:cond delay="0"/></p:stCondLst><p:childTnLst>'
+            f'<p:animMotion origin="layout" path="{path}" pathEditMode="relative" rAng="0"><p:cBhvr><p:cTn id="{ids()}" dur="{dur}" repeatCount="indefinite" fill="hold"/><p:tgtEl><p:spTgt spid="{spid}"/></p:tgtEl><p:attrNameLst><p:attrName>ppt_x</p:attrName><p:attrName>ppt_y</p:attrName></p:attrNameLst></p:cBhvr></p:animMotion>'
+            f'</p:childTnLst></p:cTn></p:par>')
+
+def build_timing(items, motion=None):
     """items = [(spid, kind, node, is_sp, is_chart)] ; une « tranche » commence à chaque afterEffect (démarrage automatique, sans clic)."""
     ids = Ids()
     slices, cur = [], []
@@ -53,6 +58,9 @@ def build_timing(items):
         eff = ''.join(effect(ids, spid, 'afterEffect' if k == 0 else 'withEffect', kind, is_sp or is_chart) for k, (spid, kind, node, is_sp, is_chart) in enumerate(sl))
         inner += f'<p:par><p:cTn id="{sid}" fill="hold"><p:stCondLst><p:cond delay="{start}"/></p:stCondLst><p:childTnLst>{eff}</p:childTnLst></p:cTn></p:par>'
         start += 400
+    if motion:
+        sid = ids()
+        inner += f'<p:par><p:cTn id="{sid}" fill="hold"><p:stCondLst><p:cond delay="{start + 300}"/></p:stCondLst><p:childTnLst>{motion_xml(ids, *motion)}</p:childTnLst></p:cTn></p:par>'
     bld, seen = '', set()
     for spid, kind, node, is_sp, is_chart in items:
         if spid in seen: continue
@@ -66,6 +74,15 @@ def build_timing(items):
 
 TRANS = {1: '<p:fade/>'}  # par défaut : fondu enchaîné ; les débuts de section : balayage
 SECTION_STARTS = {4, 7, 13}
+
+def lens_path(rot_deg, width_in):
+    """Petite boucle fermée (en fractions de la slide) orientée dans le sens de nage ; longueur bornée pour ne pas envahir le texte."""
+    L = min(0.75, max(0.3, 0.25 * width_in)); T = L * 0.28
+    r = math.radians(rot_deg); h = (math.cos(r), math.sin(r)); n = (-math.sin(r), math.cos(r))
+    P = lambda a, b: ((h[0] * a + n[0] * b) / 10.0, (h[1] * a + n[1] * b) / 5.625)
+    pts = [P(L * 0.25, -T), P(L * 0.75, -T), P(L, 0), P(L * 0.75, T), P(L * 0.25, T), P(0, 0)]
+    f = lambda p: f'{p[0]:.4f} {p[1]:.4f}'
+    return f'M 0 0 C {f(pts[0])} {f(pts[1])} {f(pts[2])} C {f(pts[3])} {f(pts[4])} {f(pts[5])} E'
 
 def process_slide(xml_bytes, number):
     root = etree.fromstring(xml_bytes)
@@ -110,7 +127,13 @@ def process_slide(xml_bytes, number):
         transition = etree.fromstring(f'<mc:AlternateContent xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:p="{NS["p"]}"><mc:Choice xmlns:p159="http://schemas.microsoft.com/office/powerpoint/2015/09/main" Requires="p159"><p:transition spd="slow"><p159:morph option="byObject"/></p:transition></mc:Choice><mc:Fallback><p:transition spd="slow"><p:fade/></p:transition></mc:Fallback></mc:AlternateContent>')
     else:
         transition = etree.fromstring(f'<p:transition xmlns:p="{NS["p"]}" spd="med">{trans}</p:transition>')
-    timing = etree.fromstring(build_timing(items))
+    motion = None
+    sp = [c for c in cand if c['name'] == '!!sperm']
+    if sp and MORPH:
+        xf = sp[0]['el'].find('.//a:xfrm', NS)
+        rot = int(xf.get('rot', '0')) / 60000.0 if xf is not None else 0.0
+        motion = (sp[0]['spid'], lens_path(rot, sp[0]['b'][2] / 914400.0))
+    timing = etree.fromstring(build_timing(items, motion))
     clr = root.find('p:clrMapOvr', NS)
     idx = list(root).index(clr) + 1 if clr is not None else list(root).index(root.find('p:cSld', NS)) + 1
     root.insert(idx, transition)
