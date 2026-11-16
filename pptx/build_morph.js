@@ -36,7 +36,7 @@ const T = (s, text, o) => s.addText(text, { margin: 0, isTextBox: true, color: C
 const MODE3D = !!process.env.MODE3D;
 // en mode 3D : un repère invisible 'MODEL3D:<modèle>:<id>' remplacé ensuite par un vrai modèle 3D PowerPoint (inject3d.py)
 const slot3d = (s, model, id, x, y, w, h, alt) => s.addShape(sh.RECTANGLE, { x, y, w, h, fill: { color: 'FFFFFF', transparency: 100 }, line: { color: 'FFFFFF', width: 0, transparency: 100 }, objectName: 'MODEL3D:' + model + ':' + id + ':' + alt });
-const pic = (s, name, x, y, w, alt) => s.addImage({ path: path.join(__dirname, 'gif', name + '.gif'), x, y, w, h: w / AR[name], altText: alt, objectName: 'Illustration ' + name });
+const pic = (s, name, x, y, w, alt) => s.addImage({ path: path.join(__dirname, process.env.GIFDIR || 'gif', name + '.gif'), x, y, w, h: w / AR[name], altText: alt, objectName: 'Illustration ' + name });
 const big = (s, v, label, x, y, w, size = 30, lw) => {
   T(s, v, { x, y, w: lw || 1.5, h: 0.6, fontSize: size, color: ACC, fontFace: '+mj-lt', valign: 'middle', objectName: 'Valeur ' + v });
   T(s, label, { x: x + (lw || 1.5) + 0.1, y, w: w - (lw || 1.5) - 0.1, h: 0.6, color: MUTED, valign: 'middle', objectName: 'Libellé ' + v });

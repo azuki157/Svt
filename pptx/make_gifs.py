@@ -42,7 +42,16 @@ for clip, out, cx, cy, w, ar, ow, fps, bg in SPEC:
         base = Image.new('RGBA', c.size, bg + (255,)); base.alpha_composite(c)
         base.convert('RGB').save(f'{tmp}/f{i:04d}.png')
     # blanc exact -> transparent (la GIF se fond dans la slide) ; pas d'optimisation par différence (évite les images fantômes)
-    vf = 'format=rgba,colorkey=0xFFFFFF:0.004:0.0,split[a][b];[a]palettegen=max_colors=200:reserve_transparent=1:stats_mode=diff[p];[b][p]paletteuse=dither=sierra2_4a:alpha_threshold=128'
-    subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(fps), '-i', f'{tmp}/f%04d.png', '-lavfi', vf, '-gifflags', '-transdiff', '-loop', '0', f'{OUT}/{out}.gif'], check=True)
+    if os.environ.get('OPAQUE'):
+        # version allégée : fond blanc opaque (identique à la slide). Le blanc est forcé EXACTEMENT dans la palette, sinon un cadre grisâtre apparaît.
+        pal = f'{tmp}/pal.png'
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(fps), '-i', f'{tmp}/f%04d.png', '-vf', 'palettegen=max_colors=96:stats_mode=full', pal], check=True)
+        p = Image.open(pal).convert('RGB'); px = list(p.getdata())
+        k = max(range(len(px)), key=lambda i: sum(px[i]))
+        px[k] = (255, 255, 255); p2 = Image.new('RGB', p.size); p2.putdata(px); p2.save(pal)
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(fps), '-i', f'{tmp}/f%04d.png', '-i', pal, '-lavfi', 'paletteuse=dither=sierra2:diff_mode=rectangle', '-loop', '0', f'{OUT}/{out}.gif'], check=True)
+    else:
+        vf = 'format=rgba,colorkey=0xFFFFFF:0.004:0.0,split[a][b];[a]palettegen=max_colors=200:reserve_transparent=1:stats_mode=diff[p];[b][p]paletteuse=dither=sierra2_4a:alpha_threshold=128'
+        subprocess.run(['ffmpeg', '-y', '-loglevel', 'error', '-framerate', str(fps), '-i', f'{tmp}/f%04d.png', '-lavfi', vf, '-gifflags', '-transdiff', '-loop', '0', f'{OUT}/{out}.gif'], check=True)
     shutil.rmtree(tmp, ignore_errors=True)
     print(out, os.path.getsize(f'{OUT}/{out}.gif') // 1024, 'Ko', len(frames), 'images')
