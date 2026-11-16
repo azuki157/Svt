@@ -129,7 +129,7 @@ def process_slide(xml_bytes, number):
         transition = etree.fromstring(f'<p:transition xmlns:p="{NS["p"]}" spd="med">{trans}</p:transition>')
     motion = None
     sp = [c for c in cand if c['name'] == '!!sperm']
-    if sp and MORPH:
+    if sp and MORPH and '--drift' in sys.argv:
         xf = sp[0]['el'].find('.//a:xfrm', NS)
         rot = int(xf.get('rot', '0')) / 60000.0 if xf is not None else 0.0
         motion = (sp[0]['spid'], lens_path(rot, sp[0]['b'][2] / 914400.0))
