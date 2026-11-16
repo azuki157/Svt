@@ -61,8 +61,9 @@ export function zoneMaterial(base) {
 }
 
 // ---------- spermatozoïde : flagelle ondulant (déformation dans le vertex shader) ----------
-export function makeSpermMaterial({ amp = 1, color = 0xf4eee4, emissive = 0x2a4a7a, cut = 1, head = 1 } = {}) {
-  const m = new THREE.MeshPhysicalMaterial({ color, roughness: 0.32, clearcoat: 0.6, emissive, emissiveIntensity: 0.35, sheen: 1, sheenColor: new THREE.Color(0xffffff) });
+const LIGHT_MODE = typeof location !== 'undefined' && new URLSearchParams(location.search).has('light');
+export function makeSpermMaterial({ amp = 1, color = LIGHT_MODE ? 0x6f86b8 : 0xf4eee4, emissive = LIGHT_MODE ? 0x203a80 : 0x2a4a7a, cut = 1, head = 1 } = {}) {
+  const m = new THREE.MeshPhysicalMaterial({ color, roughness: 0.32, clearcoat: 0.6, emissive, emissiveIntensity: LIGHT_MODE ? 0.15 : 0.35, sheen: 1, sheenColor: new THREE.Color(0xffffff) });
   const U = { uTime: { value: 0 }, uAmp: { value: amp }, uCut: { value: cut }, uHead: { value: head } };
   m.userData.U = U;
   m.onBeforeCompile = (sh) => {
@@ -88,8 +89,9 @@ export function makeSpermMaterial({ amp = 1, color = 0xf4eee4, emissive = 0x2a4a
 }
 
 // ---------- création de la scène ----------
-export async function createStage(canvas, { width, height, dpr = 1, onProgress } = {}) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+export async function createStage(canvas, { width, height, dpr = 1, onProgress, alpha = false } = {}) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', alpha });
+  if (alpha) renderer.setClearColor(0x000000, 0);
   renderer.setPixelRatio(dpr);
   renderer.setSize(width, height, false);
   renderer.toneMapping = THREE.ACESFilmicToneMapping;

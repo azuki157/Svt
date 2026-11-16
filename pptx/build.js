@@ -10,16 +10,15 @@ const { applyTheme } = require(path.join(SKILL, 'scripts/apply_theme.js'));
 
 const THEME = {
   name: 'PMA SVT', headFontFace: 'Cambria', bodyFontFace: 'Calibri',
-  colors: { dk1: 'F2F5FF', lt1: '0A0F24', dk2: 'A9B4D6', lt2: '141B3A', accent1: 'FF5D8F', accent2: '4DB8FF', accent3: 'A98BFF', accent4: '37E0C0', accent5: 'FFB84D', accent6: 'FF4D5E', hlink: '4DB8FF', folHlink: 'A98BFF' },
+  colors: { dk1: '14204A', lt1: 'F3F6FC', dk2: '5B6690', lt2: 'FFFFFF', accent1: 'E11D63', accent2: '1976D2', accent3: '6D4AE0', accent4: '0E9F8E', accent5: 'D97706', accent6: 'DC2626', hlink: '1976D2', folHlink: '6D4AE0' },
 };
-const BG = '0A0F24', CARDLINE = '27315E';
+const BG = 'F3F6FC', CARDLINE = 'DCE4F3', ON = 'FFFFFF';
 
 const pres = new pptxgen();
 pres.layout = 'LAYOUT_16x9';
 pres.theme = { headFontFace: THEME.headFontFace, bodyFontFace: THEME.bodyFontFace };
 pres.title = 'La procréation médicalement assistée'; pres.subject = 'SVT · Sujet 4'; pres.author = 'SVT';
 const C = pres.SchemeColor;
-const IMG = (n) => path.join(__dirname, 'img', n + '.png');
 
 async function icon(name, color = '#FFFFFF') {
   const svg = RDS.renderToStaticMarkup(React.createElement(fa[name], { color, size: '256' }));
@@ -35,13 +34,13 @@ pres.defineSlideMaster({
     { placeholder: { options: { name: 'title', type: 'title', x: 0.6, y: 0.66, w: 8.8, h: 0.7, fontSize: 30, bold: true, color: C.text1, align: 'left', valign: 'top', margin: 0 }, text: '' } },
     { text: { text: 'La procréation médicalement assistée · SVT', options: { x: 0.6, y: 5.2, w: 5, h: 0.25, fontSize: 10, color: C.text2, margin: 0 } } },
   ],
-  slideNumber: { x: 8.9, y: 5.2, w: 0.5, h: 0.25, fontSize: 10, color: 'A9B4D6', align: 'right' },
+  slideNumber: { x: 8.9, y: 5.2, w: 0.5, h: 0.25, fontSize: 10, color: '5B6690', align: 'right' },
 });
 
 // ---------- helpers ----------
 const sh = pres.shapes;
 function kicker(s, text, color) { s.addText(text, { x: 0.6, y: 0.34, w: 8, h: 0.25, fontSize: 11, bold: true, charSpacing: 3, color, margin: 0, isTextBox: true, objectName: 'Rubrique' }); }
-function card(s, x, y, w, h, name = 'Carte') { s.addShape(sh.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.12, fill: { color: C.background2 }, line: { color: CARDLINE, width: 0.75 }, objectName: name }); }
+function card(s, x, y, w, h, name = 'Carte') { s.addShape(sh.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.12, fill: { color: C.background2 }, line: { color: CARDLINE, width: 0.75 }, shadow: { type: 'outer', color: '14204A', opacity: 0.1, blur: 8, offset: 2, angle: 90 }, objectName: name }); }
 function txt(s, text, o) { s.addText(text, { margin: 0, isTextBox: true, color: C.text1, fontSize: 14, valign: 'top', ...o }); }
 function pill(s, text, x, y, w, color) {
   s.addShape(sh.ROUNDED_RECTANGLE, { x, y, w, h: 0.34, rectRadius: 0.17, fill: { color: BG, transparency: 18 }, line: { color, width: 1 }, objectName: 'Légende' });
@@ -53,10 +52,16 @@ async function badge(s, x, y, d, accent, ico, name = 'Pastille') {
 }
 function num(s, n, x, y, d, accent) {
   s.addShape(sh.OVAL, { x, y, w: d, h: d, fill: { color: accent }, line: { color: accent, width: 0 }, objectName: 'Numéro ' + n });
-  s.addText(String(n), { x, y, w: d, h: d, align: 'center', valign: 'middle', fontSize: 14, bold: true, color: BG, margin: 0, isTextBox: true, objectName: 'Numéro ' + n + ' texte' });
+  s.addText(String(n), { x, y, w: d, h: d, align: 'center', valign: 'middle', fontSize: 14, bold: true, color: ON, margin: 0, isTextBox: true, objectName: 'Numéro ' + n + ' texte' });
 }
-function picture(s, name, x, y, w, alt) { const h = { title: 0.9, defs: 1, male: 1, don_kids: 1 }; s.addImage({ path: IMG(name), x, y, w, h: w / pxAR[name], altText: alt, objectName: 'Illustration ' + name }); }
-const pxAR = { title: 1100 / 1222, defs: 1, male: 1, don_kids: 1, fem_fol: 1100 / 588, fem_plug: 1100 / 588, micro: 1100 / 588, stim_pon: 1100 / 493, stim_fol: 1100 / 493, ins_cav: 1100 / 733, ins_feco: 1100 / 733, fiv_pon: 1100 / 611, fiv_petri: 1100 / 611, fiv_nid: 1100 / 611, fiv_emb: 1100 / 611, icsi: 1100 / 748, bilan: 1100 / 846, loi: 1100 / 499 };
+const pxAR = { title: 0.9, defs: 1, male: 1, don_kids: 1, fem_fol: 1.87, fem_plug: 1.87, stim_pon: 2.23, stim_fol: 2.23, ins_cav: 1.5, fiv_pon: 1.8, fiv_petri: 1.8, fiv_nid: 1.8, icsi: 1.47, bilan: 1.3 };
+// illustration = GIF animé (rendu 3D) posé dans un cadre blanc
+function picture(s, name, x, y, w, alt) {
+  const h = w / pxAR[name];
+  if (name !== 'title') card(s, x, y, w, h, 'Cadre ' + name);
+  const pad = name === 'title' ? 0 : 0.06;
+  s.addImage({ path: path.join(__dirname, 'gif', name + '.gif'), x: x + pad, y: y + pad, w: w - 2 * pad, h: h - 2 * pad, altText: alt, objectName: 'Illustration ' + name });
+}
 const content = (title, sec) => { const s = pres.addSlide({ masterName: 'Contenu', sectionTitle: sec }); s.addText(title, { placeholder: 'title' }); return s; };
 const stat = (s, x, y, w, h, big, label, accent, bigSize = 22) => {
   card(s, x, y, w, h, 'Chiffre');
@@ -123,8 +128,8 @@ const stat = (s, x, y, w, h, big, label, accent, bigSize = 22) => {
     const s = content('Une affaire de couple', SEC[1]); kicker(s, 'CAUSES · RÉPARTITION', C.accent3);
     card(s, 0.6, 1.45, 4.6, 3.55, 'Cadre graphique');
     s.addChart(pres.charts.DOUGHNUT, [{ name: 'Causes', labels: ['Mixtes', 'Féminines', 'Masculines', 'Inexpliquées'], values: [39, 33, 21, 7] }], {
-      x: 0.7, y: 1.55, w: 4.4, h: 3.35, holeSize: 58, chartColors: ['A98BFF', 'FF5D8F', '4DB8FF', '98A2B8'], showLegend: true, legendPos: 'b', legendColor: 'F2F5FF', legendFontSize: 12, legendFontFace: '+mn-lt',
-      showValue: true, showPercent: false, dataLabelColor: '0A0F24', dataLabelFontSize: 14, dataLabelFontBold: true, dataLabelFontFace: '+mn-lt', dataLabelFormatCode: '0"%"', showTitle: false, dataBorder: { pt: 2, color: '141B3A' },
+      x: 0.7, y: 1.55, w: 4.4, h: 3.35, holeSize: 58, chartColors: ['6D4AE0', 'E11D63', '1976D2', '8B94AD'], showLegend: true, legendPos: 'b', legendColor: '14204A', legendFontSize: 12, legendFontFace: '+mn-lt',
+      showValue: true, showPercent: false, dataLabelColor: 'FFFFFF', dataLabelFontSize: 14, dataLabelFontBold: true, dataLabelFontFace: '+mn-lt', dataLabelFormatCode: '0"%"', showTitle: false, dataBorder: { pt: 2, color: 'FFFFFF' },
     });
     [['93 %', 'des cas : une cause est identifiée', C.accent4], ['60 %', 'impliquent une cause masculine (21 + 39)', C.accent2], ['72 %', 'impliquent une cause féminine (33 + 39)', C.accent1]].forEach(([b, l, ac], i) => {
       const y = 1.45 + i * 1.2; card(s, 5.5, y, 3.9, 1.1, 'Chiffre ' + b);
@@ -239,14 +244,14 @@ const stat = (s, x, y, w, h, big, label, accent, bigSize = 22) => {
   // ===== 13. tableau comparatif =====
   {
     const s = content('Comparer les techniques', SEC[3]); kicker(s, 'SYNTHÈSE', C.accent4);
-    const H = (t) => ({ text: t, options: { bold: true, color: BG, fill: { color: '37E0C0' }, fontSize: 14, valign: 'middle' } });
-    const R = (a, b, c, d, ac) => [{ text: a, options: { bold: true, color: ac, fontSize: 14 } }, { text: b, options: { fontSize: 14 } }, { text: c, options: { fontSize: 14, color: 'A9B4D6' } }, { text: d, options: { fontSize: 14, bold: true, align: 'center' } }];
+    const H = (t) => ({ text: t, options: { bold: true, color: ON, fill: { color: '0E9F8E' }, fontSize: 14, valign: 'middle' } });
+    const R = (a, b, c, d, ac) => [{ text: a, options: { bold: true, color: ac, fontSize: 14 } }, { text: b, options: { fontSize: 14 } }, { text: c, options: { fontSize: 14, color: '5B6690' } }, { text: d, options: { fontSize: 14, bold: true, align: 'center' } }];
     const rows = [[H('Technique'), H('Principe'), H('Indication fréquente'), H('Réussite')],
-      R('Stimulation', 'Aide l’ovaire à produire des ovocytes', 'Troubles de l’ovulation', '—', 'FFB84D'),
-      R('Insémination', 'Sperme préparé déposé dans l’utérus', 'Peu de spermatozoïdes, ovulation à contrôler', '12 %', 'FF5D8F'),
-      R('FIV', 'Fécondation in vitro puis transfert', 'Trompes obstruées', '≈ 20 %', '37E0C0'),
-      R('ICSI', 'Un spermatozoïde injecté dans l’ovocyte', 'Spermatozoïdes peu nombreux, peu mobiles, anormaux', '—', 'A98BFF'),
-      R('Dons', 'Sperme ou ovocytes de donneurs', 'Gamètes absents ou de mauvaise qualité', '—', '4DB8FF')];
+      R('Stimulation', 'Aide l’ovaire à produire des ovocytes', 'Troubles de l’ovulation', '—', 'D97706'),
+      R('Insémination', 'Sperme préparé déposé dans l’utérus', 'Peu de spermatozoïdes, ovulation à contrôler', '12 %', 'E11D63'),
+      R('FIV', 'Fécondation in vitro puis transfert', 'Trompes obstruées', '≈ 20 %', '0E9F8E'),
+      R('ICSI', 'Un spermatozoïde injecté dans l’ovocyte', 'Spermatozoïdes peu nombreux, peu mobiles, anormaux', '—', '6D4AE0'),
+      R('Dons', 'Sperme ou ovocytes de donneurs', 'Gamètes absents ou de mauvaise qualité', '—', '1976D2')];
     s.addTable(rows, { x: 0.6, y: 1.45, w: 8.8, colW: [1.6, 3.0, 3.2, 1.0], rowH: [0.4, 0.62, 0.62, 0.62, 0.62, 0.62], color: C.text1, fill: { color: C.background2 }, border: { type: 'solid', pt: 0.75, color: CARDLINE }, margin: [0.05, 0.1, 0.05, 0.1], fontSize: 14, valign: 'middle', objectName: 'Tableau comparatif' });
     s.addNotes('Tableau de synthèse. Les indications sont données à titre d’exemple : le médecin choisit la technique selon la cause identifiée. Les taux de réussite sont ceux du document 6 (insémination 12 %, FIVETE environ 20 %).');
   }
@@ -259,12 +264,12 @@ const stat = (s, x, y, w, h, big, label, accent, bigSize = 22) => {
       txt(s, ttl, { x: x + 0.2, y: 1.55, w: 3.9, h: 0.3, fontSize: 14, bold: true, color: C.text2, objectName: 'Titre ' + ttl });
       s.addChart(pres.charts.BAR, [{ name: ttl, labels: ['Insémination', 'FIVETE'], values: vals }], {
         x: x + 0.1, y: 1.9, w: 4.1, h: 2.5, barDir: 'col', chartColors: ac, invertedColors: ac, barGapWidthPct: 60, showLegend: false, showTitle: false,
-        showValue: true, dataLabelPosition: 'outEnd', dataLabelColor: 'F2F5FF', dataLabelFontSize: 14, dataLabelFontBold: true, dataLabelFontFace: '+mn-lt', dataLabelFormatCode: fmt,
-        catAxisLabelColor: 'F2F5FF', catAxisLabelFontSize: 12, catAxisLabelFontFace: '+mn-lt', valAxisHidden: true, valAxisMaxVal: ymax, valAxisMinVal: 0, valGridLine: { style: 'none' }, catGridLine: { style: 'none' },
+        showValue: true, dataLabelPosition: 'outEnd', dataLabelColor: '14204A', dataLabelFontSize: 14, dataLabelFontBold: true, dataLabelFontFace: '+mn-lt', dataLabelFormatCode: fmt,
+        catAxisLabelColor: '14204A', catAxisLabelFontSize: 12, catAxisLabelFontFace: '+mn-lt', valAxisHidden: true, valAxisMaxVal: ymax, valAxisMinVal: 0, valGridLine: { style: 'none' }, catGridLine: { style: 'none' },
       });
     };
-    mk(0.6, 'Taux de réussite par tentative', [12, 20], '0"%"', 26, ['FF5D8F', '37E0C0']);
-    mk(5.1, 'Naissances par an en France', [6000, 18000], '#,##0', 23000, ['FF5D8F', '37E0C0']);
+    mk(0.6, 'Taux de réussite par tentative', [12, 20], '0"%"', 26, ['E11D63', '0E9F8E']);
+    mk(5.1, 'Naissances par an en France', [6000, 18000], '#,##0', 23000, ['E11D63', '0E9F8E']);
     card(s, 0.6, 4.62, 8.8, 0.5, 'Conclusion');
     txt(s, 'La FIV réussit mieux par tentative et représente trois fois plus de naissances.', { x: 0.8, y: 4.62, w: 8.4, h: 0.5, valign: 'middle', objectName: 'Conclusion texte' });
     s.addNotes('Environ 12 % de réussite pour l’insémination, 20 % pour la FIVETE. En France, plus de 6 000 naissances par an par insémination et plus de 18 000 par FIVETE. Source : document 6.');
@@ -273,8 +278,8 @@ const stat = (s, x, y, w, h, big, label, accent, bigSize = 22) => {
   // ===== 15. cadre légal =====
   {
     const s = content('Le cadre légal en France', SEC[3]); kicker(s, 'CADRE LÉGAL', C.accent3);
-    const ev = [['1982', 'Premier « bébé-éprouvette »', 'B9C6FF'], ['1994', 'Lois de bioéthique', '4DB8FF'], ['2004', 'Révision', 'A98BFF'], ['2011', 'Révision', 'A98BFF'], ['2021', 'PMA pour toutes', 'FF5D8F'], ['2022', 'Accès aux origines', '37E0C0']];
-    s.addShape(sh.LINE, { x: 1.1, y: 1.95, w: 7.8, h: 0, line: { color: '3A4680', width: 2 }, objectName: 'Frise' });
+    const ev = [['1982', 'Premier « bébé-éprouvette »', '8F9FE8'], ['1994', 'Lois de bioéthique', '1976D2'], ['2004', 'Révision', '6D4AE0'], ['2011', 'Révision', '6D4AE0'], ['2021', 'PMA pour toutes', 'E11D63'], ['2022', 'Accès aux origines', '0E9F8E']];
+    s.addShape(sh.LINE, { x: 1.1, y: 1.95, w: 7.8, h: 0, line: { color: 'B8C4E6', width: 2 }, objectName: 'Frise' });
     ev.forEach(([y, t, c], i) => {
       const cx = 1.1 + i * 1.56; const big = i === 4;
       s.addShape(sh.OVAL, { x: cx - (big ? 0.15 : 0.1), y: 1.95 - (big ? 0.15 : 0.1), w: big ? 0.3 : 0.2, h: big ? 0.3 : 0.2, fill: { color: c }, line: { color: BG, width: 2 }, objectName: 'Repère ' + y });
@@ -299,7 +304,7 @@ const stat = (s, x, y, w, h, big, label, accent, bigSize = 22) => {
       card(s, 0.6, y, 2.75, 0.78, 'Cause ' + (i + 1)); txt(s, a, { x: 0.75, y, w: 2.45, h: 0.78, valign: 'middle', objectName: 'Cause ' + (i + 1) + ' texte' });
       s.addText('→', { x: 3.4, y, w: 0.4, h: 0.78, fontSize: 22, bold: true, color: ac, align: 'center', valign: 'middle', margin: 0, isTextBox: true, objectName: 'Flèche ' + (i + 1) });
       s.addShape(sh.ROUNDED_RECTANGLE, { x: 3.85, y, w: 2.6, h: 0.78, rectRadius: 0.12, fill: { color: ac }, line: { color: ac, width: 0 }, objectName: 'Technique ' + (i + 1) });
-      txt(s, b, { x: 4.0, y, w: 2.3, h: 0.78, fontSize: 15, bold: true, color: BG, valign: 'middle', objectName: 'Technique ' + (i + 1) + ' texte' });
+      txt(s, b, { x: 4.0, y, w: 2.3, h: 0.78, fontSize: 15, bold: true, color: ON, valign: 'middle', objectName: 'Technique ' + (i + 1) + ' texte' });
     });
     picture(s, 'bilan', 6.75, 1.45, 2.65, 'Rendu 3D : les trois stations, appareil féminin, masculin et laboratoire');
     card(s, 6.75, 3.7, 2.65, 1.3, 'Conclusion');

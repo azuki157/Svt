@@ -217,7 +217,7 @@ export function slidesC(W) {
         oo = W.add(makeOocyte(1.35)); oo.position.copy(OC);
         hold = W.add(makePipette(0.14, 0.4, 4.6, true)); hold.rotation.z = Math.PI / 2;
         needle = W.add(makePipette(0.11, 0.3, 5.4, true)); needle.rotation.z = -Math.PI / 2;
-        for (const pp of [hold, needle]) pp.traverse((o) => { if (o.material) { o.material.depthTest = false; o.renderOrder = 6; if (o.material.color) o.material.color.set(0xbfe9ff); } });
+        for (const pp of [hold, needle]) pp.traverse((o) => { if (o.material) { o.material.depthTest = false; o.renderOrder = 6; if (o.material.color) o.material.color.set(W.LIGHT ? 0x4f9fd6 : 0xbfe9ff); } });
         sp = new Swarm(S, 1, { amp: 0, emissive: 0x2a5a9a }); W.add(sp.group);
         sp.mat.depthTest = false; sp.mesh.renderOrder = 8;
         dropFl = makeFlock(W, 12, { scale: 0.5, seed: 31 });

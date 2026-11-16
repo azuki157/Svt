@@ -11,8 +11,9 @@ if (EXPORT) document.body.classList.add('export');
 const V3 = THREE.Vector3;
 const hexs = (c) => '#' + c.toString(16).padStart(6, '0');
 
+const LIGHT = q.has('light'); // mode "rendu clair" : fond transparent (utilisé pour les illustrations du PowerPoint)
 const S = await createStage($('#gl'), {
-  width: innerWidth, height: innerHeight, dpr: EXPORT ? 1 : Math.min(2, window.devicePixelRatio || 1),
+  alpha: LIGHT, width: innerWidth, height: innerHeight, dpr: EXPORT ? 1 : Math.min(2, window.devicePixelRatio || 1),
   onProgress: (p) => { $('#loadtxt').textContent = `Chargement des modèles 3D… ${Math.round(p * 100)} %`; },
 });
 
@@ -24,13 +25,14 @@ const W = {
   t: 0, time: 0, dt: 1 / 60, idx: 0, dur: 10,
   add(obj, parent = S.scene) { parent.add(obj); setFade(obj, 0); reg.set(obj, 0); return obj; },
   show(obj, a = 1) { tgt.set(obj, Math.max(tgt.get(obj) || 0, a)); },
-  U: S.uterus, M: S.male,
+  U: S.uterus, M: S.male, LIGHT,
 };
 S.uterus.position.copy(ST.F); S.male.position.copy(ST.M);
 W.add(S.uterus); W.add(S.male);
 const platF = W.add(S.makePlatform(COL.fem, 2.2)); platF.position.copy(ST.F).y = -1.02;
 const platM = W.add(S.makePlatform(COL.mal, 2.3)); platM.position.copy(ST.M).y = S.maleBox.min.y - 0.06;
 const platL = W.add(S.makePlatform(COL.lab, 3.6)); platL.position.copy(ST.L).y = -1.02;
+if (LIGHT) { S.sky.visible = false; S.dust.visible = false; S.scene.fog = null; for (const p of [platF, platM, platL]) { p.children[0].material.color.set(0xdde5f4); p.children[3].visible = false; p.children[2].visible = false; } }
 W.platF = platF; W.platM = platM; W.platL = platL;
 
 // ---------- mise en évidence ----------
@@ -196,7 +198,7 @@ function step(dt) {
   const k = 1 - Math.exp(-dt * 1.6);
   bgTop.set(slide.bg?.[0] ?? 0x101a3d); bgBot.set(slide.bg?.[1] ?? 0x05070f);
   S.skyU.uTop.value.lerp(bgTop, k); S.skyU.uBot.value.lerp(bgBot, k);
-  S.scene.fog.color.copy(S.skyU.uBot.value).lerp(S.skyU.uTop.value, 0.12);
+  if (S.scene.fog) S.scene.fog.color.copy(S.skyU.uBot.value).lerp(S.skyU.uTop.value, 0.12);
   // fondus
   const kf = 1 - Math.exp(-dt * 5);
   for (const [o, lv] of reg) {
@@ -205,7 +207,7 @@ function step(dt) {
   }
   tgt.clear();
   // pulsation des anneaux de plateformes
-  for (const p of [platF, platM, platL]) p.userData.ring.material.color.setScalar(0.85 + 0.15 * Math.sin(W.time * 2));
+  if (!LIGHT) for (const p of [platF, platM, platL]) p.userData.ring.material.color.setScalar(0.85 + 0.15 * Math.sin(W.time * 2));
   // interface : apparition échelonnée
   for (const el of rvEls) {
     const p = easeOut((W.t - +el.dataset.at) / 0.7);
