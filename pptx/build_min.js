@@ -30,6 +30,9 @@ const AR = { title: 0.9, defs: 1, male: 1, don_kids: 1, fem_fol: 1.87, fem_plug:
 const content = (title, sec, i) => { const s = pres.addSlide({ masterName: 'Contenu', sectionTitle: sec }); s.addText(title, { placeholder: 'title' }); s.addNotes(NOTES[i]); return s; };
 const kicker = (s, t) => s.addText(t, { x: 0.7, y: 0.34, w: 8, h: 0.24, fontSize: 10.5, bold: true, charSpacing: 3, color: ACC, margin: 0, isTextBox: true, objectName: 'Rubrique' });
 const T = (s, text, o) => s.addText(text, { margin: 0, isTextBox: true, color: C.text1, fontSize: 14, valign: 'top', ...o });
+const MODE3D = !!process.env.MODE3D;
+// en mode 3D : un repère invisible 'MODEL3D:<modèle>:<id>' remplacé ensuite par un vrai modèle 3D PowerPoint (inject3d.py)
+const slot3d = (s, model, id, x, y, w, h, alt) => s.addShape(sh.RECTANGLE, { x, y, w, h, fill: { color: 'FFFFFF', transparency: 100 }, line: { color: 'FFFFFF', width: 0, transparency: 100 }, objectName: 'MODEL3D:' + model + ':' + id + ':' + alt });
 const pic = (s, name, x, y, w, alt) => s.addImage({ path: path.join(__dirname, 'gif', name + '.gif'), x, y, w, h: w / AR[name], altText: alt, objectName: 'Illustration ' + name });
 const big = (s, v, label, x, y, w, size = 30, lw) => {
   T(s, v, { x, y, w: lw || 1.5, h: 0.6, fontSize: size, color: ACC, fontFace: '+mj-lt', valign: 'middle', objectName: 'Valeur ' + v });
@@ -50,7 +53,7 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
     s.addText('SVT · SUJET 4', { x: 0.7, y: 1.35, w: 4.5, h: 0.25, fontSize: 11, bold: true, charSpacing: 4, color: ACC, margin: 0, isTextBox: true, objectName: 'Rubrique' });
     s.addText('La procréation médicalement assistée', { x: 0.7, y: 1.75, w: 4.7, h: 1.8, fontSize: 38, color: C.text1, fontFace: '+mj-lt', margin: 0, valign: 'top', isTextBox: true, objectName: 'Titre' });
     s.addText('Infertilité, stérilité et techniques d’assistance médicale à la procréation', { x: 0.7, y: 3.75, w: 4.2, h: 0.8, fontSize: 15, color: MUTED, margin: 0, valign: 'top', isTextBox: true, objectName: 'Sous-titre' });
-    pic(s, 'title', 5.6, 0.55, 3.8, 'Rendu 3D : l’utérus et des spermatozoïdes');
+    if (MODE3D) slot3d(s, 'uterus', 's1', 5.6, 0.55, 3.8, 4.2, 'Modèle 3D : utérus'); else pic(s, 'title', 5.6, 0.55, 3.8, 'Rendu 3D : l’utérus et des spermatozoïdes');
   }
 
   // 2 trois questions
@@ -89,7 +92,7 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
   // 5 féminines
   {
     const s = content('Causes féminines', SEC[1], 4); kicker(s, 'CAUSES · FEMME');
-    pic(s, 'fem_fol', 0.7, 1.4, 4.1, 'Rendu 3D : follicule qui ne se rompt pas'); pic(s, 'fem_plug', 5.2, 1.4, 4.1, 'Rendu 3D : trompe obstruée');
+    if (MODE3D) slot3d(s, 'uterus', 's5', 0.7, 1.4, 4.1, 2.19, 'Modèle 3D : utérus'); else pic(s, 'fem_fol', 0.7, 1.4, 4.1, 'Rendu 3D : follicule qui ne se rompt pas'); pic(s, 'fem_plug', 5.2, 1.4, 4.1, 'Rendu 3D : trompe obstruée');
     [[0.7, '30 %', 'Troubles de l’ovulation', 'maladies des ovaires, problèmes hormonaux'], [5.2, '26 %', 'Obstruction des trompes', 'suite à des infections']].forEach(([x, v, h, t]) => {
       T(s, v, { x, y: 3.85, w: 1.4, h: 0.8, fontSize: 36, color: ACC, fontFace: '+mj-lt', valign: 'middle', objectName: 'Part ' + v });
       T(s, [{ text: h, options: { bold: true, breakLine: true } }, { text: t, options: { color: MUTED } }], { x: x + 1.5, y: 3.85, w: 2.6, h: 0.8, valign: 'middle', objectName: 'Cause ' + h });
@@ -99,7 +102,7 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
   // 6 masculines
   {
     const s = content('Causes masculines', SEC[1], 5); kicker(s, 'CAUSES · HOMME');
-    pic(s, 'male', 0.7, 1.4, 3.3, 'Rendu 3D : appareil reproducteur masculin');
+    if (MODE3D) slot3d(s, 'male', 's6', 0.7, 1.4, 3.3, 3.3, 'Modèle 3D : appareil reproducteur masculin'); else pic(s, 'male', 0.7, 1.4, 3.3, 'Rendu 3D : appareil reproducteur masculin');
     ['Spermatozoïdes en nombre insuffisant', 'Mobilité insuffisante', 'Nombreux spermatozoïdes malformés'].forEach((t, i) => step(s, i + 1, '', t, 4.6, 1.5 + i * 0.7, 4.7, 0.5));
     T(s, 'ORIGINES POSSIBLES', { x: 4.6, y: 3.85, w: 4.7, h: 0.25, fontSize: 10.5, bold: true, charSpacing: 3, color: MUTED, objectName: 'Origines titre' });
     T(s, 'Troubles hormonaux · dysfonctionnement des testicules · obstruction des voies génitales', { x: 4.6, y: 4.15, w: 4.7, h: 0.7, objectName: 'Origines texte' });
@@ -126,7 +129,7 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
   // 9 insémination
   {
     const s = content('L’insémination artificielle', SEC[2], 8); kicker(s, 'TECHNIQUES · 2');
-    pic(s, 'ins_cav', 0.7, 1.4, 4.2, 'Rendu 3D : cathéter dans la cavité utérine');
+    if (MODE3D) slot3d(s, 'uterus', 's9', 0.7, 1.4, 4.2, 2.8, 'Modèle 3D : utérus'); else pic(s, 'ins_cav', 0.7, 1.4, 4.2, 'Rendu 3D : cathéter dans la cavité utérine');
     ['Sperme préparé au laboratoire', 'Ovaires stimulés, ovulation contrôlée', 'Dépôt dans l’utérus avec un cathéter'].forEach((t, i) => step(s, i + 1, '', t, 5.4, 1.5 + i * 0.85, 3.9, 0.6));
     [['12 %', 'de réussite', 0.95], ['> 6 000', 'naissances par an', 1.35], ['6 %', 'avec don de sperme', 0.75]].forEach(([v, l, lw], i) => big(s, v, l, [0.7, 3.4, 6.8][i], 4.45, [2.5, 3.2, 2.6][i], 24, lw));
   }
@@ -156,8 +159,9 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
   {
     const s = content('ICSI : un seul spermatozoïde', SEC[2], 11); kicker(s, 'TECHNIQUES · 5');
     pic(s, 'icsi', 0.7, 1.4, 5.0, 'Rendu 3D : injection d’un spermatozoïde');
-    ['Un spermatozoïde injecté dans l’ovocyte', 'Sous un microscope spécialement équipé', 'Technique très utilisée en FIV'].forEach((t, i) => step(s, i + 1, '', t, 6.1, 1.5 + i * 0.8, 3.2, 0.7));
-    T(s, [{ text: 'Surtout utile', options: { bold: true, color: ACC, breakLine: true } }, { text: 'spermatozoïdes peu nombreux, peu mobiles ou anormaux', options: { color: MUTED } }], { x: 6.1, y: 3.95, w: 3.2, h: 0.9, objectName: 'Indication' });
+    ['Un spermatozoïde injecté dans l’ovocyte', 'Sous un microscope spécialement équipé', 'Technique très utilisée en FIV'].forEach((t, i) => step(s, i + 1, '', t, 6.1, MODE3D ? 1.4 + i * 0.62 : 1.5 + i * 0.8, 3.2, 0.6));
+    T(s, [{ text: 'Surtout utile', options: { bold: true, color: ACC, breakLine: true } }, { text: 'spermatozoïdes peu nombreux, peu mobiles ou anormaux', options: { color: MUTED } }], { x: 6.1, y: MODE3D ? 3.3 : 3.95, w: 3.2, h: 0.9, objectName: 'Indication' });
+    if (MODE3D) slot3d(s, 'sperm', 's12', 6.1, 4.2, 3.2, 0.9, 'Modèle 3D : spermatozoïde');
   }
 
   // 13 comparatif
@@ -227,7 +231,7 @@ const step = (s, n, head, text, x, y, w, h = 0.8) => {
     T(s, [{ text: 'À vérifier avant l’oral : ', options: { bold: true, color: ACC } }, { text: 'seuils d’âge (45 et 60 ans) et limite d’âge du remboursement.', options: { color: MUTED } }], { x: 0.7, y: 4.6, w: 8.6, h: 0.35, objectName: 'À vérifier' });
   }
 
-  const out = path.join(__dirname, 'PMA_SVT_minimal.pptx');
+  const out = path.join(__dirname, MODE3D ? 'PMA_SVT_minimal_3D_base.pptx' : 'PMA_SVT_minimal.pptx');
   await pres.writeFile({ fileName: out });
   await applyTheme(out, THEME);
   console.log('ok');
